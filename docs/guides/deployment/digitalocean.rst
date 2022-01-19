@@ -4,18 +4,69 @@
 On DigitalOcean
 ===============
 
-In this guide we show how to deploy EdgeDB to DigitalOcean using a DigitalOcean
-managed PostgreSQL database as the backend.
+In this guide we show how to deploy EdgeDB to DigitalOcean either with a
+`One-click Deploy`_ option or a `managed PostgreSQL`_ database as the backend
+(recommended).
 
+.. _managed PostgreSQL: ref_guide_deployment_digitalocean_managed_
+
+
+One-click Deploy
+++++++++++++++++
+
+Click the button below and follow the droplet creation workflow on
+DigitalOcean. Once deployed you will have an EdgeDB instance running. The
+default admin password is ``edgedbpassword``. We strongly recommend that you
+change the password.
+
+`1-click deploy button <1-click-button_>`_
+
+.. XXX: to be determined
+.. _1-click-button: ???
+
+To change the password run the following. You will find you droplet ip address
+on digitalocean_. The EdgeDB cli installer can be found here_.
+
+.. _digitalocean: https://cloud.digitalocean.com/droplets?
+.. _here: edgedb-install_
+
+.. code-block:: bash
+
+   IP=<your-droplet-ip>
+   read -sp "Password: " PASSWORD
+   printf edgedbpassword | edgedb query \
+     --host $IP \
+     --password-from-stdin \
+     --tls-security insecure \
+     "alter role edgedb set password := '${PASSWORD}'"
+
+Optionally create a local link to your new EdgeDB server.
+
+.. code-block:: bash
+
+   printf $PASSWORD | edgedb instance link \
+     --host $IP \
+     --trust-tls-cert \
+     --password-from-stdin \
+     --non-interactive \
+     digitalocean
+
+
+.. _ref_guide_deployment_digitalocean_managed:
+
+Deploy with Managed PostgreSQL
+++++++++++++++++++++++++++++++
 
 Prerequisites
 =============
 
+* ``edgedb`` CLI (`install <edgedb-install_>`_)
 * DigitalOcean account
 * ``doctl`` CLI (`install <doclt-install_>`_)
 * ``jq`` (`install <jq_>`_)
 
-.. _doctl-install: https://docs.digitalocean.com/reference/doctl/how-to/install/
+.. _edgedb-install: https://www.edgedb.com/install
+.. _doclt-install: https://docs.digitalocean.com/reference/doctl/how-to/install
 .. _jq: https://stedolan.github.io/jq/
 
 
@@ -47,7 +98,9 @@ keys with ``doctl compute ssh-key list``.  If you don't have any ssh keys in
 your DigitalOcean account you can follow `this guide <upload-ssh-keys_>`_ to do
 that now.
 
-.. _upload-ssh-keys: https://docs.digitalocean.com/products/droplets/how-to/add-ssh-keys/to-account/
+.. _upload-ssh-keys:
+   https://docs.digitalocean.com/products/droplets
+   /how-to/add-ssh-keys/to-account/
 
 .. code-block:: bash
 
